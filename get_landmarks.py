@@ -1,32 +1,7 @@
 import cv2
 import dlib
 import numpy as np
-from MorphabelModel import MorphabelModel
-import mesh
 
-bfm = MorphabelModel('models/BFM.mat')
-
-shape_coefficients = np.zeros((bfm.n_shape_para, 1))
-color_coefficients = np.zeros((bfm.n_tex_para, 1))
-for i in range(100):
-    shape_coefficients += 0.2*np.random.randn(bfm.n_shape_para, 1)
-    color_coefficients += 0.1*np.random.randn(bfm.n_tex_para, 1)
-    vertices = bfm.generate_vertices(shape_coefficients)
-    colors = bfm.generate_colors(color_coefficients)
-
-    s = 8e-04
-    angles = [0, 0, 0]
-    t = [0, 0, 0]
-    transformed_vertices = bfm.transform(vertices, s, angles, t)
-    projected_vertices = transformed_vertices.copy()
-
-    h = w = 256
-    c = 3
-    image_vertices = mesh.transform.to_image(projected_vertices, h, w)
-    image = mesh.render.render_colors(image_vertices, bfm.triangles, colors, h, w)
-
-    cv2.imshow('a', cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    cv2.waitKey(1)
 
 im = cv2.imread('data/face.jpeg')
 gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)

@@ -8,3 +8,5 @@ Install cython.
 Go to mesh/cython and run **python setup.py build_ext -i**
 
 ![picture](results/landmarks.png?raw=true "Title")
+
+![picture](results/result.gif?raw=true "Title")

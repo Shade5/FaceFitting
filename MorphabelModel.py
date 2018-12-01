@@ -11,7 +11,7 @@ class MorphabelModel():
         self.ntri = self.model['tri'].shape[0]
         self.n_shape_para = self.model['shapePC'].shape[1]
         self.n_exp_para = self.model['expPC'].shape[1]
-        self.n_tex_para = self.model['texMU'].shape[1]
+        self.n_tex_para = self.model['texPC'].shape[1]
 
         self.kpt_ind = self.model['kpt_ind']
         self.triangles = self.model['tri']
@@ -37,8 +37,9 @@ class MorphabelModel():
 
         self.model = model
 
-    def generate_vertices(self, shape_para):
+    def generate_vertices(self, shape_para, exp_para):
         vertices = self.model['shapeMU'] + self.model['shapePC']@(self.model['shapeEV'] * shape_para)
+        vertices += self.model['expPC']@(self.model['expEV'] * exp_para)
         vertices = np.reshape(vertices, [3, len(vertices)//3], 'F').T
 
         return vertices
