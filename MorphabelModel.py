@@ -1,6 +1,8 @@
 import numpy as np
 import scipy.io
 import mesh
+import fit
+
 
 class MorphabelModel():
     def __init__(self, model_path):
@@ -53,3 +55,8 @@ class MorphabelModel():
     def transform(self, vertices, s, angles, t3d):
         R = mesh.transform.angle2matrix(angles)
         return mesh.transform.similarity_transform(vertices, s, R, t3d)
+
+    def fit(self, x, X_ind, max_iter = 4, isShow = False):
+        fitted_sp, fitted_ep, s, R, t = fit.fit_points(x, X_ind, self.model, n_sp = self.n_shape_para, n_ep = self.n_exp_para, max_iter = max_iter)
+        angles = mesh.transform.matrix2angle(R)
+        return fitted_sp, fitted_ep, s, angles, t
