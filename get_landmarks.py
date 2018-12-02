@@ -4,8 +4,9 @@ import numpy as np
 from MorphabelModel import MorphabelModel
 import mesh
 
-im = cv2.resize(cv2.imread('data/simple.jpg'), (512, 512))
+im = cv2.imread('data/trump.png')
 gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+h, w, c = im.shape
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("models/shape_predictor_68_face_landmarks.dat")
@@ -18,30 +19,21 @@ landmarks = np.zeros((68, 2))
 for i, p in enumerate(shape.parts()):
     landmarks[i] = [p.x, p.y]
     im = cv2.circle(im, (p.x, p.y), radius=1, color=(255, 0, 0), thickness=3)
-    # Remove this to stop animation
-    # cv2.imshow('a', im)
-    # cv2.waitKey(100)
 
 bfm = MorphabelModel('models/BFM.mat')
+x = mesh.transform.from_image(landmarks, h, w)
 X_ind = bfm.kpt_ind
 
-fitted_sp, fitted_ep, fitted_s, fitted_angles, fitted_t = bfm.fit(landmarks, X_ind, max_iter=3)
 
-fitted_vertices = bfm.generate_vertices(fitted_sp, fitted_ep)
-transformed_vertices = bfm.transform(fitted_vertices, fitted_s, fitted_angles, fitted_t)
+fitted_sp, fitted_ep, fitted_s, fitted_angles, fitted_t = bfm.fit(x, X_ind, max_iter=20, isShow=True)
+colors = bfm.generate_colors(np.random.rand(bfm.n_tex_para, 1))
+colors = np.minimum(np.maximum(colors, 0), 1)
 
-image_vertices = mesh.transform.to_image(transformed_vertices, 512, 512)
-fitted_image = mesh.render.render_colors(image_vertices, bfm.triangles, 255*np.ones((bfm.n_tex_para, 1)), 512, 512)
-
-cv2.imshow('a', fitted_image)
-cv2.waitKey(0)
-
-pass
-
-
-#
-# im = cv2.rectangle(im, rects[0], rects[1], color=(0, 255, 0), thickness=2)
-#
-# cv2.imshow('a', im)
-# cv2.waitKey(0)
-# cv2.imwrite('results/landmarks.png', im)
+for i in range(fitted_sp.shape[0]):
+    fitted_vertices = bfm.generate_vertices(fitted_sp[i], fitted_ep[i])
+    transformed_vertices = bfm.transform(fitted_vertices, fitted_s[i], fitted_angles[i], fitted_t[i])
+    image_vertices = mesh.transform.to_image(transformed_vertices, h, w)
+    fitted_image = mesh.render.render_colors(image_vertices, bfm.triangles, colors, h, w)
+    cv2.imshow('inital', im)
+    cv2.imshow('fit', cv2.cvtColor(fitted_image, cv2.COLOR_BGR2RGB))
+    cv2.waitKey(1000)

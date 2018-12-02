@@ -223,6 +223,27 @@ def to_image(vertices, h, w, is_perspective = False):
     return image_vertices
 
 
+def from_image(vertices, h, w):
+    ''' change vertices to image coord system
+    3d system: XYZ, center(0, 0, 0)
+    2d image: x(u), y(v). center(w/2, h/2), flip y-axis.
+    Args:
+        vertices: [nver, 3]
+        h: height of the rendering
+        w : width of the rendering
+    Returns:
+        projected_vertices: [nver, 3]
+    '''
+    image_vertices = vertices.copy()
+
+    # move to center of image
+    image_vertices[:,0] = image_vertices[:,0] - w/2
+    # flip vertices along y-axis.
+    image_vertices[:,1] = -(- h + image_vertices[:,1] + 1)
+    image_vertices[:, 1] = image_vertices[:, 1] - h / 2
+    return image_vertices
+
+
 #### -------------------------------------------2. estimate transform matrix from correspondences.
 def estimate_affine_matrix_3d23d(X, Y):
     ''' Using least-squares solution 

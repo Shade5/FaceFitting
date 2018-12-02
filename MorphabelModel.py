@@ -40,9 +40,15 @@ class MorphabelModel():
         self.model = model
 
     def generate_vertices(self, shape_para, exp_para):
-        vertices = self.model['shapeMU'] + self.model['shapePC']@(self.model['shapeEV'] * shape_para)
-        vertices += self.model['expPC']@(self.model['expEV'] * exp_para)
-        vertices = np.reshape(vertices, [3, len(vertices)//3], 'F').T
+        '''
+        Args:
+            shape_para: (n_shape_para, 1)
+            exp_para: (n_exp_para, 1)
+        Returns:
+            vertices: (nver, 3)
+        '''
+        vertices = self.model['shapeMU'] + self.model['shapePC'].dot(shape_para) + self.model['expPC'].dot(exp_para)
+        vertices = np.reshape(vertices, [int(3), int(len(vertices)/3)], 'F').T
 
         return vertices
 
@@ -56,7 +62,13 @@ class MorphabelModel():
         R = mesh.transform.angle2matrix(angles)
         return mesh.transform.similarity_transform(vertices, s, R, t3d)
 
-    def fit(self, x, X_ind, max_iter = 4, isShow = False):
-        fitted_sp, fitted_ep, s, R, t = fit.fit_points(x, X_ind, self.model, n_sp = self.n_shape_para, n_ep = self.n_exp_para, max_iter = max_iter)
-        angles = mesh.transform.matrix2angle(R)
+    def fit(self, x, X_ind, max_iter=4, isShow = False):
+        if isShow:
+            fitted_sp, fitted_ep, s, R, t = fit.fit_points_for_show(x, X_ind, self.model, n_sp = self.n_shape_para, n_ep = self.n_exp_para, max_iter = max_iter)
+            angles = np.zeros((R.shape[0], 3))
+            for i in range(R.shape[0]):
+                angles[i] = mesh.transform.matrix2angle(R[i])
+        else:
+            fitted_sp, fitted_ep, s, R, t = fit.fit_points(x, X_ind, self.model, n_sp = self.n_shape_para, n_ep = self.n_exp_para, max_iter = max_iter)
+            angles = mesh.transform.matrix2angle(R)
         return fitted_sp, fitted_ep, s, angles, t
