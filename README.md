@@ -13,4 +13,5 @@ Go to mesh/cython and run **python setup.py build_ext -i**
 
 <p align="center">
     ![picture](results/result.gif?raw=true "Title")
+    <img src="results/result.gif?raw=true" alt="gif"/>
 </p>
