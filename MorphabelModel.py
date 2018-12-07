@@ -53,7 +53,7 @@ class MorphabelModel():
         return vertices
 
     def generate_colors(self, tex_para):
-        colors = self.model['texMU'] + self.model['texPC']@(self.model['texEV'] * tex_para)
+        colors = self.model['texMU'] + self.model['texPC']@(tex_para)
         colors = np.reshape(colors, [3, len(colors) // 3], 'F').T / 255.
 
         return colors
